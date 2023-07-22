@@ -10,8 +10,19 @@
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
-#define BUTTON_PIN  13
-#define DATA_PIN    3
+/* shield pinouts */
+#define LED_0_DATA  5
+#define LED_0_CLK   3
+#define LED_1_DATA  8
+#define LED_1_CLK   9
+#define LED_2_DATA  A0
+#define LED_2_CLK   A4
+#define LED_3_DATA  A1
+#define LED_3_CLK   A2
+
+
+#define BUTTON_PIN  13  /* pin 13 is connected to a built-in LED, which might cause an issue; can change to 2, 10,11, or 12 */
+#define DATA_PIN    5   /* if using the shield, then likely 5, 8, A0, or A1 */
 #define NUM_PIXELS  50
 Adafruit_NeoPixel pixels(NUM_PIXELS, DATA_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -235,10 +246,14 @@ void countDown(){
     pixels.clear(); // Set all pixel colors to 'off'
     setNumber(i);   //set the white pixels
     pixels.show();  //actually load the pixel value data
+    Serial.print("Countdown ");
+    Serial.println(i,DEC);
     delay(1000);    //wait 1 second
   }
+  Serial.println("Blastoff");
   flicker(5000); //flicker for 5 seconds
   pixels.clear(); // Set all pixel colors to 'off'
+  Serial.println("Reset. Scanning for big button press");
 }
 
 
@@ -250,8 +265,10 @@ void checkButtonState(){
   if(last_button_state != curr_button_state){ //there is a change in state
     last_button_state = curr_button_state;
     if(curr_button_state == LOW){ //we have a press
+      Serial.println("Press detected on big button");
       countDown();
     }else{ //we have a release
+      Serial.println("Release detected on big button");
       //do nothing
     }
   }
@@ -261,10 +278,14 @@ void checkButtonState(){
 
 void setup() {
   delay(3000); // 3 second delay for recovery
+  Serial.begin(9600);
+  
   pinMode(BUTTON_PIN,INPUT_PULLUP); //pull pin 13 high with internal pullup
   
   pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   pixels.clear(); // Set all pixel colors to 'off'
+
+  Serial.println("Count Down Display Ready");
 }
 
 void loop()
